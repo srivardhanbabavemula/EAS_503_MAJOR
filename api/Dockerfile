@@ -1,18 +1,27 @@
-FROM python:3.14-slim
-
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+FROM python:3.12-slim
 
 WORKDIR /app
 
-# Copy requirements and install dependencies
+# 0. Install system dependencies (libgomp1 for lightgbm, curl for healthcheck)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libgomp1 curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# 1. Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# 2. Copy FastAPI app and pipeline code
 COPY app.py .
+COPY housing_pipeline.py .
 
-# Expose port (internal only, not published)
+# 3. Ensure models dir exists (will be mounted from host)
+RUN mkdir -p /app/models
+
 EXPOSE 8000
 
-# Run the FastAPI app
+# Container-level healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
