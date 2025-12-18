@@ -12,5 +12,7 @@ services:
       dockerfile: Dockerfile.streamlit
     ports:
       - "8501:8501"
+    environment:
+      - API_URL=http://housing-api:8000/predict
     depends_on:
       - housing-api

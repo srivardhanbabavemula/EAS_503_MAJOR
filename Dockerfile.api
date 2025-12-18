@@ -2,16 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy requirements first (better caching)
 COPY api/requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy API code
-COPY api/ .
+COPY api ./api
+COPY models ./models
 
-# Copy models directory (THIS WAS MISSING)
-COPY models /app/models
+WORKDIR /app/api
 
 EXPOSE 8000
 
