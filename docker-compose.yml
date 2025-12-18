@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
-    container_name: housing-api
     ports:
       - "8000:8000"
 
@@ -11,10 +10,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.streamlit
-    container_name: housing-streamlit
     ports:
       - "8501:8501"
-    environment:
-      - API_URL=http://housing-api:8000
     depends_on:
       - housing-api
